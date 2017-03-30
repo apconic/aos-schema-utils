@@ -1,0 +1,21 @@
+{
+  "env": {
+    "node": true,
+    "browser": true,
+    "es6": true,
+    "commonjs": true
+  },
+  "rules": {
+    "no-underscore-dangle": 0,
+    "comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "functions": "ignore"
+    }],
+    "linebreak-style": 0,
+    "no-global-assign": 0,
+    "no-unsafe-negation": 0,
+    "jsx-a11y/anchor-has-content": 0
+  },
+  "extends": "airbnb"
+}
