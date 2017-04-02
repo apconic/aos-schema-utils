@@ -1,137 +1,28 @@
-# Forms based on Material UI
+# Schema for server side validation
 
-A Higher Order Component using react and redux to keep form state using material-ui components.
-This package only supports Material UI (https://github.com/callemall/material-ui).
+This is schema for server side validation.
 
 ## Getting Started
 
-* Run npm install lodash react react-dom material-ui redux react-redux aos-forms
-* Create a redux store and add forms reducer to it.
+Run
+
 ~~~~
-  import { FormsReducer as Forms } from 'aos-forms';
-  import { createStore, combineReducers } from 'redux';
-
-  const reducers = combineReducers({
-    Forms,
-  });
-  const store = createStore(reducers);
-  export default store;
+npm install aos-schema-utils
 ~~~~
-* Below is an example of form schema and form
-~~~~
-  import React from 'react';
-  import ReactDOM from 'react-dom';
-  import injectTapEventPlugin from 'react-tap-event-plugin';
-  import { Provider } from 'react-redux';
-  import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-  import RaisedButton from 'material-ui/RaisedButton';
-  import { DataField, composeWithRedux, DataFieldSchema } from 'aos-forms';
-  import '../style/style.css';
-  import store from './redux-store';
-
-  // Needed for onTouchTap
-  // http://stackoverflow.com/a/34015469/988941
-  injectTapEventPlugin();
-
-  const formSchema = {
-    firstName: DataFieldSchema.text('firstName').label('First name').default('number 123').regex('number').mandatory(),
-    description: DataFieldSchema.text('description').default('number 345').readOnly().label('Description'),
-    startDate: DataFieldSchema.date('startDate').label('Start date').mandatory(),
-    startTime: DataFieldSchema.time('startTime').label('Start time').mandatory(),
-    quantity: DataFieldSchema.number('quantity').label('Quantity').min(120).max(200).mandatory().decimal(2),
-    password: DataFieldSchema.text('password').label('Password').mandatory().password(),
-    sendNotification: DataFieldSchema.toggle('sendNotification').label('Send Notification'),
-    addDetails: DataFieldSchema.check('addDetails').label('Add details in notification'),
-    profession: DataFieldSchema.autoComplete('profession').label('Profession').strings([
-      "Doctor",
-      "Engineer",
-      "Plumber",
-    ]),
-    rooms: DataFieldSchema.
-      select('rooms').
-      label('Rooms').
-      objects([
-        { title: 'Barbie', number: '1' },
-        { title: 'Jackson', number: '2' },
-        { title: 'Presidential', number: '3' },
-      ],
-      { primaryTextKey: 'title', secondaryTextKey: 'number'}),
-  };
-
-  const App = (props) => {
-    const {
-      firstName,
-      description,
-      startDate,
-      quantity,
-      password,
-      startTime,
-      sendNotification,
-      addDetails,
-      rooms,
-      profession,
-      valid
-    } = props;
-    const successResult =  { result: true };
-    return (
-      <div>
-        <DataField {...firstName} />
-        <DataField {...description} />
-        <DataField {...startDate} />
-        <DataField {...quantity} />
-        <DataField {...password} />
-        <DataField {...startTime} />
-        <DataField {...sendNotification} />
-        <DataField {...addDetails} />
-        <DataField {...rooms} />
-        <DataField {...profession} />
-        <RaisedButton label='Save' primary disabled={!valid} />
-      </div>
-    );
-  };
-
-  App.propTypes = {
-    firstName: PropTypes.object,
-    description: PropTypes.object,
-    startDate: PropTypes.object,
-    quantity: PropTypes.object,
-    password: PropTypes.object,
-    startTime: PropTypes.object,
-    sendNotification: PropTypes.object,
-    addDetails: PropTypes.object,
-    rooms: PropTypes.object,
-    profession: PropTypes.object,
-    valid: PropTypes.bool,       // This will be true only if all the validations have passed.
-    formValues: PropTypes.object // This object contains property and there values.
-  };
-
-  const ReduxApp = composeWithRedux('App', formSchema)(App);
-  ReactDOM.render(
-    <Provider store={store}>
-      <MuiThemeProvider>
-        <ReduxApp />
-      </MuiThemeProvider>
-    </Provider>,
-    document.getElementById('root')
-  );
-~~~~
-
-### Prerequisites
-
-You need to create an app with some configuration usually using webpack or meteor.
 
 ### Installing
 
-npm install aos-forms
-
+~~~~
+npm install aos-schema-utils
+~~~~
 ## Running the tests
 
-I have added some tests. More as time permits me.
+I have added some tests. More tests as time permits. 
+I am using Tape for writing tests.
 
-## Built With
-
-* [MaterialUI](https://github.com/callemall/material-ui) - The web framework used
-* [Redux](http://redux.js.org//) - State manager
+~~~~
+npm run test
+~~~~
 
 ## Contributing
 
@@ -155,5 +46,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * Hat tip to anyone who's code was used
-* Inspiration: Redux forms and other forms library.
+* Inspiration: Joi
 * etc

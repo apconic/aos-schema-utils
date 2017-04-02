@@ -1,6 +1,6 @@
 {
   "name": "aos-schema-utils",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "description": "Object schema validation for mongodb",
   "main": "src/index.js",
   "scripts": {

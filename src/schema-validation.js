@@ -178,6 +178,10 @@ function validateSingleField(name, value, schema) {
 
   // Fix number of places after decimal
   const validationResult = validateDataAgainstSchema(name, value, schema);
+  if (!validationResult.result) {
+    return validationResult;
+  }
+
   if (validationResult.result && (toUpper(schema.fieldType) === 'NUMBER')) {
     fieldValue = Util.fixDouble(fieldValue, schema.decimalPlaces);
   }
@@ -195,9 +199,13 @@ module.exports.validateObject = (data, schema, failOnFieldNotInSchema = false) =
   const dataKeys = keys(data).sort();
 
   if (failOnFieldNotInSchema) {
-    if (!isEqual(objectKeys, dataKeys)) {
+    const fieldNotInSchema = dataKeys.filter(element =>
+      !objectKeys.find(schemaElement => schemaElement === element)
+    );
+
+    if (fieldNotInSchema.length > 0) {
       // This means we need to return an error
-      return createError('Fields present in object which are not present in schema');
+      return createError(`Fields ${fieldNotInSchema.toString()} present in object which are not present in schema`);
     }
   }
 
