@@ -77,6 +77,7 @@ test('Validation test for string', (assert) => {
     validateObject(notAlphaNumericObject, schemaWithRegex).result,
     'Validate object failed with a regex for alphanumeric'
   );
+
   assert.end();
 });
 
@@ -133,7 +134,6 @@ test('Validate number values', (assert) => {
   );
 
   const numberIsAboveMaxValue = { val: 102 };
-  console.log(validateObject(numberIsBelowMaxValue, schemaWithMaxValue).error);
   assert.notOk(
     validateObject(numberIsAboveMaxValue, schemaWithMaxValue).result,
     'Validation fails when number is above max value'
@@ -223,7 +223,7 @@ test('Validation of date type', (assert) => {
 test('Validate array', (assert) => {
   const validArray = { val: [1, 2, 3] };
   const invalidArrayField = { val: '1' };
-  const schema = { val: { fieldType: 'ARRAY' } };
+  const schema = { val: { fieldType: 'ARRAY', defaultValue: [] } };
   assert.ok(
     validateObject(validArray, schema).result,
     'Validation passes for valid array'

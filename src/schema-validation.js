@@ -1,8 +1,6 @@
 const isEmpty = require('lodash').isEmpty;
 const toUpper = require('lodash').toUpper;
-const forOwn = require('lodash').forOwn;
 const isString = require('lodash').isString;
-const omit = require('lodash').omit;
 const isNumber = require('lodash').isNumber;
 const validator = require('validator');
 const DataType = require('./data-types');
@@ -10,7 +8,8 @@ const Util = require('./util');
 const isArray = require('lodash').isArray;
 const keys = require('lodash').keys;
 const isDate = require('lodash').isDate;
-const isEqual = require('lodash').isEqual;
+const toLower = require('lodash').toLower;
+const trim = require('lodash').trim;
 
 const { isNullOrUndefined, isDefined } = Util;
 
@@ -66,6 +65,134 @@ const isValidRegex = (text, validationRegex) => {
   return true;
 };
 
+const isUppercase = value => value === toUpper(value);
+
+const isLowercase = value => value === toLower(value);
+
+
+const validateArray = (name, value, schema) => {
+  if (schema.isRequired && isNullOrUndefined(value)) {
+    return createError(`${name} is required`);
+  }
+
+  if (isNullOrUndefined(value)) {
+    return createSuccess();
+  }
+
+  if (!isArray(value)) {
+    return createError(`${name} is not an array`);
+  }
+
+  if (schema.maxItems && value.length > schema.maxItems) {
+    return createError(`${name} has more items than allowed.`);
+  }
+
+  if (schema.minItems && value.length < schema.minItems) {
+    return createError(`${name} has few items`);
+  }
+
+  if (schema.length && value.length === schema.length) {
+    return createError(`${name} has incorrect number of items`);
+  }
+
+  return createSuccess();
+};
+
+const validateAny = (name, value, schema) => {
+  if (schema.isRequired && (isNullOrUndefined(value) || isEmpty(value))) {
+    return createError(`${name} is required`);
+  }
+  if (isNullOrUndefined(value)) {
+    return createSuccess();
+  }
+  return createSuccess();
+};
+
+const validateString = (name, value, schema) => {
+  if (schema.isRequired && (isNullOrUndefined(value) || isEmpty(value))) {
+    return createError(`${name} is required`);
+  }
+
+  if (isNullOrUndefined(value)) {
+    return createSuccess();
+  }
+
+  if (!isString(value)) {
+    return createError(`${name} is not a string`);
+  }
+
+  if (!isValid(value, schema.validatorType)) {
+    return createError(`${name} is invalid`);
+  }
+
+  if (!isValidRegex(value, schema.validationRegex)) {
+    return createError(`${name} is invalid`);
+  }
+
+  if (schema.lowerCase && !isLowercase(value)) {
+    return createError(`${name} should be lowercase`);
+  }
+
+  if (schema.upperCase && !isUppercase(value)) {
+    return createError(`${name} should be uppercase`);
+  }
+
+  if (schema.maxLength && value.length > schema.maxLength) {
+    return createError(
+      `${name} has length greater than maximum length ${schema.maxLength}`
+      );
+  }
+
+  if (schema.minLength && value.length < schema.minLength) {
+    return createError(
+      `${name} has length less than minimum length ${schema.minLength}`
+      );
+  }
+  return createSuccess();
+};
+
+const validateDate = (name, value, schema) => {
+  if (schema.isRequired && isNullOrUndefined(value)) {
+    return createError(`${name} is required`);
+  }
+
+  if (isNullOrUndefined(value)) {
+    return createSuccess();
+  }
+
+  if (!isDate(value)) {
+    return createError(`${name} is not date`);
+  }
+
+  return createSuccess();
+};
+
+const validateNumber = (name, value, schema) => {
+  if (schema.isRequired && (isNullOrUndefined(value) || isEmpty(value))) {
+    return createError(`${name} is required`);
+  }
+
+  if ((isNullOrUndefined(schema.minValue)
+  && isNullOrUndefined(schema.maxValue))
+  && isNullOrUndefined(value)) {
+    return createSuccess();
+  }
+
+  if (!isNumber(value)) {
+    return createError(`${name} is not a number`);
+  }
+
+  if (isLessThanMinValue(value, schema.minValue)) {
+    return createError(`${name} is less than minimum value ${schema.minValue}`);
+  }
+
+  if (isGreaterThanMaxValue(value, schema.maxValue)) {
+    return createError(`${name} = ${value} is greater than maximum value ${schema.maxValue}`);
+  }
+
+  return createSuccess();
+};
+
 function validateDataAgainstSchema(name, value, schema) {
   if (Util.isNullOrUndefined(schema)) {
     return createError('Schema is undefined');
@@ -73,89 +200,17 @@ function validateDataAgainstSchema(name, value, schema) {
 
   switch (toUpper(schema.fieldType)) {
     case DataType.Array:
-      if (schema.isRequired && isNullOrUndefined(value)) {
-        return createError(`${name} is required`);
-      }
-
-      if (isNullOrUndefined(value)) {
-        return createSuccess();
-      }
-
-      if (!isArray(value)) {
-        return createError(`${name} is not an array`);
-      }
-      return createSuccess();
-    case DataType.Any:
-      if (schema.isRequired && (isNullOrUndefined(value) || isEmpty(value))) {
-        return createError(`${name} is required`);
-      }
-      if (isNullOrUndefined(value)) {
-        return createSuccess();
-      }
-      return createSuccess();
+      return validateArray(name, value, schema);
     case DataType.String:
-      if (schema.isRequired && (isNullOrUndefined(value) || isEmpty(value))) {
-        return createError(`${name} is required`);
-      }
-
-      if (isNullOrUndefined(value)) {
-        return createSuccess();
-      }
-
-      if (!isString(value)) {
-        return createError(`${name} is not a string`);
-      }
-
-      if (!isValid(value, schema.validatorType)) {
-        return createError(`${name} is invalid`);
-      }
-
-      if (!isValidRegex(value, schema.validationRegex)) {
-        return createError(`${name} is invalid`);
-      }
-
-      return createSuccess();
+      return validateString(name, value, schema);
     case DataType.Number:
-      if (schema.isRequired && (isNullOrUndefined(value) || isEmpty(value))) {
-        return createError(`${name} is required`);
-      }
-
-      if ((isNullOrUndefined(schema.minValue)
-      && isNullOrUndefined(schema.maxValue))
-      && isNullOrUndefined(value)) {
-        return createSuccess();
-      }
-
-      if (!isNumber(value)) {
-        return createError(`${name} is not a number`);
-      }
-
-      if (isLessThanMinValue(value, schema.minValue)) {
-        return createError(`${name} is less than minimum value ${schema.minValue}`);
-      }
-
-      if (isGreaterThanMaxValue(value, schema.maxValue)) {
-        return createError(`${name} = ${value} is greater than maximum value ${schema.maxValue}`);
-      }
-
-      return createSuccess();
+      return validateNumber(name, value, schema);
     case DataType.Date:
     case DataType.Time:
-      if (schema.isRequired && isNullOrUndefined(value)) {
-        return createError(`${name} is required`);
-      }
-
-      if (isNullOrUndefined(value)) {
-        return createSuccess();
-      }
-
-      if (!isDate(value)) {
-        return createError(`${name} is not date`);
-      }
-
-      return createSuccess();
+      return validateDate(name, value, schema);
+    case DataType.Any:
     default:
-      return createSuccess();
+      return validateAny(name, value, schema);
   }
 }
 
@@ -169,15 +224,23 @@ function validateSingleField(name, value, schema) {
     fieldValue = schema.defaultValue;
   }
 
-  // If the field is array type than initialize it to an empty Array
-  // if value is null or undefined.
-  if (toUpper(schema.fieldType) === 'ARRAY' && isNullOrUndefined(fieldValue)) {
-    fieldValue = [];
+  if (!isNullOrUndefined(value)
+    && schema.fieldType === DataType.String) {
+    if (schema.truncate) {
+      fieldValue = trim(fieldValue);
+    }
+
+    if (schema.lowerCase) {
+      fieldValue = toLower(fieldValue);
+    }
+
+    if (schema.upperCase) {
+      fieldValue = toUpper(fieldValue);
+    }
   }
 
-
   // Fix number of places after decimal
-  const validationResult = validateDataAgainstSchema(name, value, schema);
+  const validationResult = validateDataAgainstSchema(name, fieldValue, schema);
   if (!validationResult.result) {
     return validationResult;
   }
@@ -185,6 +248,7 @@ function validateSingleField(name, value, schema) {
   if (validationResult.result && (toUpper(schema.fieldType) === 'NUMBER')) {
     fieldValue = Util.fixDouble(fieldValue, schema.decimalPlaces);
   }
+
   return { result: validationResult.result, value: fieldValue };
 }
 
