@@ -5,5 +5,6 @@ const Aoss = require('./schema/aoss');
 module.exports = {
   validateObject,
   DataTypes,
+  Aoss,
 };
 

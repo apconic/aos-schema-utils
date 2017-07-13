@@ -13,7 +13,7 @@ test('Default value tests', (assert) => {
 
 test('Validation failed on invalid fields', (assert) => {
   const objectWithInvalidFields = { val: 1, val2: 2 };
-  const schema = { val: { fieldType: 'NUMBER' }};
+  const schema = { val: { fieldType: 'NUMBER' } };
   assert.notOk(
     validateObject(objectWithInvalidFields, schema, true).result,
     'Validation failed as object has field not present in schema'
@@ -143,6 +143,31 @@ test('Validate number values', (assert) => {
   const schemaWithMaxAndMinValue = { val: { fieldType: 'NUMBER', minValue: 100, maxValue: 150 } };
   assert.ok(validateObject(numberIsValid, schemaWithMaxAndMinValue).result,
     'Validation passes when number is between min and max values'
+  );
+
+  const numberIsReq = { val: 120 };
+  const schemaRequired = { val: { fieldType: 'NUMBER', isRequired: true } };
+  assert.ok(validateObject(numberIsReq, schemaRequired).result,
+    'Validation passes when number is present for required schema'
+  );
+
+  const numberTest = { test: 20 };
+  assert.notOk(validateObject(numberTest, schemaRequired).result,
+    'Validation fails when number is not present for required schema'
+  );
+
+  const checksum = { crc_sum: 20 };
+  const validationResult = validateObject(checksum, { crc_sum: { fieldType: 'NUMBER', isRequired: true } });
+  assert.ok(
+    validationResult.result,
+    'Validation passes as number is present for schema'
+  );
+
+  const checksumWithoutCRC = { test: 20 };
+  const validationResultNew = validateObject(checksumWithoutCRC, { crc_sum: { fieldType: 'NUMBER', isRequired: true } });
+  assert.notOk(
+    validationResultNew.result,
+    'Validation passes as number is present for schema'
   );
 
   assert.end();

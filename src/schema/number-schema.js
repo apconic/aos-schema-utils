@@ -24,7 +24,7 @@ class NumberSchema {
     return this;
   }
 
-  max(maxValue){
+  max(maxValue) {
     this.maxValue = maxValue;
     return this;
   }

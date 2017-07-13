@@ -13,6 +13,39 @@ module.exports = {
     return !(isNull(value) || isUndefined(value));
   },
 
+  createError(msg) {
+    return { result: false, error: msg };
+  },
+
+  createSuccess(value) {
+    return { result: true, value };
+  },
+
+  isLessThanMinValue(value, minValue){
+    if (isNull(minValue) || isUndefined(minValue)) {
+      return false;
+    }
+
+    if (isNull(value) || isUndefined(value)) {
+      return true;
+    } else if (value < minValue) {
+      return true;
+    }
+    return false;
+  },
+
+  isGreaterThanMaxValue(value, maxValue) {
+    if (isNull(maxValue) || isUndefined(maxValue)) {
+      return false;
+    }
+    if (isNull(value) || isUndefined(value)) {
+      return true;
+    } else if (value > maxValue) {
+      return true;
+    }
+    return false;
+  },
+
   getDefaultValues(formSchema) {
     const defaultValues = {};
     forOwn(formSchema, (value, key) => {

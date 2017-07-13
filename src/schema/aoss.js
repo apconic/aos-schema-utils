@@ -3,6 +3,7 @@ const StringSchema = require('./string-schema');
 const DateSchema = require('./date-schema');
 const BoolSchema = require('./bool-schema');
 const ArraySchema = require('./array-schema');
+const AnySchema = require('./any-schema');
 
 class Aoss {
   static number(name) {
@@ -23,6 +24,10 @@ class Aoss {
 
   static array(name) {
     return new ArraySchema(name);
+  }
+
+  static any(name) {
+    return new AnySchema(name);
   }
 }
 

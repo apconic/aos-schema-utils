@@ -11,36 +11,14 @@ const isDate = require('lodash').isDate;
 const toLower = require('lodash').toLower;
 const trim = require('lodash').trim;
 
-const { isNullOrUndefined, isDefined } = Util;
-
-const createError = msg => ({ result: false, error: msg });
-
-const createSuccess = value => ({ result: true, value });
-
-const isLessThanMinValue = (value, minValue) => {
-  if (Util.isNullOrUndefined(minValue)) {
-    return false;
-  }
-
-  if (Util.isNullOrUndefined(value)) {
-    return true;
-  } else if (value < minValue) {
-    return true;
-  }
-  return false;
-};
-
-const isGreaterThanMaxValue = (value, maxValue) => {
-  if (Util.isNullOrUndefined(maxValue)) {
-    return false;
-  }
-  if (Util.isNullOrUndefined(value)) {
-    return true;
-  } else if (value > maxValue) {
-    return true;
-  }
-  return false;
-};
+const {
+  isNullOrUndefined,
+  isDefined,
+  createError,
+  createSuccess,
+  isLessThanMinValue,
+  isGreaterThanMaxValue,
+} = Util;
 
 const isValid = (text, validatorToUse) => {
   if (!validatorToUse) {
@@ -168,7 +146,7 @@ const validateDate = (name, value, schema) => {
 };
 
 const validateNumber = (name, value, schema) => {
-  if (schema.isRequired && (isNullOrUndefined(value) || isEmpty(value))) {
+  if (schema.isRequired && isNullOrUndefined(value)) {
     return createError(`${name} is required`);
   }
 
@@ -252,7 +230,7 @@ function validateSingleField(name, value, schema) {
   return { result: validationResult.result, value: fieldValue };
 }
 
-module.exports.validateObject = (data, schema, failOnFieldNotInSchema = false) => {
+function validateAgainstSchema(data, schema, failOnFieldNotInSchema = false) {
   if (isEmpty(data) && isEmpty(schema)) {
     return createSuccess();
   }
@@ -286,4 +264,6 @@ module.exports.validateObject = (data, schema, failOnFieldNotInSchema = false) =
   // output data only contain data which is present in schema and nothing
   // else.
   return { result: true, value: outputData };
-};
+}
+
+module.exports.validateObject = validateAgainstSchema;

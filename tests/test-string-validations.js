@@ -2,6 +2,13 @@ const test = require('tape');
 const validateObject = require('../src/schema-validation').validateObject;
 const Aoss = require('../src/schema/aoss');
 
+test('Validate string empty check', (assert) => {
+  const obj = { firstName: '' };
+  const schema = { firstName: Aoss.string('firstName').mandatory() };
+  assert.notOk(validateObject(obj, schema).result, 'Validation failed for empty string when it is required');
+  assert.end();
+});
+
 test('Validate string maximum length check', (assert) => {
   const obj = { firstName: 'Suhail Ansari' };
   const schemaWithMaxLengthOf5 = { firstName: Aoss.string('firstName').maxLen(5) };
